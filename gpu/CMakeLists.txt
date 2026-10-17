@@ -55,6 +55,10 @@ if (WIN32)
         list(APPEND CMAKE_PREFIX_PATH "$ENV{VULKAN_SDK}")
     endif()
     add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
+    # MinGW defaults to Windows 7, hiding Win8+ APIs such as SetProcessInformation.
+    if (NOT CMAKE_C_FLAGS MATCHES "_WIN32_WINNT")
+        add_compile_definitions(_WIN32_WINNT=0x0A00)
+    endif()
     if (EXISTS "C:/msys64/mingw64/lib")
         link_directories("C:/msys64/mingw64/lib")
     endif()
@@ -301,6 +305,8 @@ add_executable(bbport
     ${RUNTIME_SOURCES}
     ../src/vulkan_smoke.c
 )
+# probe.c's top-level asm calls C functions LTO cannot see; a regular object keeps them linked.
+set_source_files_properties(../src/probe.c PROPERTIES COMPILE_OPTIONS "-fno-lto")
 target_include_directories(bbport PRIVATE .. ../src)
 target_link_libraries(bbport PRIVATE bbgpu "${CMAKE_CURRENT_SOURCE_DIR}/../out/libatrac9.a" Vulkan::Vulkan)
 if (WIN32)
