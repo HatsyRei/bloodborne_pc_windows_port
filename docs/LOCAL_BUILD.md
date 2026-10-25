@@ -16,6 +16,11 @@ These live on `dev` only; keep them out of fix branches sent upstream.
 | `implicit declaration of function 'SetProcessInformation'` in `src/runtime_thread.c` | MSYS2 MinGW defaults `_WIN32_WINNT` to `0x601` (Windows 7), hiding Win8+ APIs. CI passes `-D_WIN32_WINNT=0x0A00`; `build.bat` doesn't. | Define `_WIN32_WINNT=0x0A00` unless `CMAKE_C_FLAGS` already sets it. |
 | `bbport.exe` link fails: `pre_import_hook`, `runtime_thread_get_tcb`, ... `defined in discarded section` | LTO is on (`BB_LTO`) and applies to `bbport`. `src/probe.c` calls these from top-level asm, which LTO can't see, so it drops them. | Compile `src/probe.c` with `-fno-lto`. |
 
+## Fixes in sources
+| Symptom | Cause | Fix |
+|---|---|---|
+| `'MZ_ZIP_FLAG_READ_ALLOW_WRITING' was not declared` in `gpu/shadps4/video_core/cache_storage.cpp` | Windows builds use the miniz 3.0.2 vendored in 466e30e (`gpu/third_party/miniz`), which predates that flag (miniz 3.1). | `gpu/shadps4/video_core/cache_storage.cpp` defines it as `0` when missing; 3.0.2's `mz_zip_writer_init_from_reader` reopens the archive `r+b` itself. |
+
 ## Harmless warnings
 - `-Wodr` warnings for `FfxShaderModel` / `FfxGpuJobDescription` between the FSR 3 and FSR 4 headers.
 - `WIN32_LEAN_AND_MEAN` / `VK_USE_PLATFORM_WIN32_KHR` redefined.

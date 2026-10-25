@@ -12,6 +12,10 @@
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 
 #include <miniz.h>
+// dev: vendored miniz 3.0.2 predates this flag; its writer_init_from_reader reopens r+b anyway.
+#ifndef MZ_ZIP_FLAG_READ_ALLOW_WRITING
+#define MZ_ZIP_FLAG_READ_ALLOW_WRITING 0
+#endif
 
 #include <condition_variable>
 #include <functional>
